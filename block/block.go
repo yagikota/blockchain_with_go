@@ -18,7 +18,7 @@ const (
 type Blockchain struct {
 	transactionPool   []*Transaction // TODO: search
 	chain             []*Block
-	blockchainAddress string
+	blockchainAddress string // Use bitcoin address as blockchainAddress.
 }
 
 func NewBlockchain(blockchainAddress string) *Blockchain {
@@ -38,13 +38,13 @@ func (bc *Blockchain) Print() {
 }
 
 // TODO: function name maybe incorrect.
-func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) *Block {
+func (bc *Blockchain) CreateBlock(nonce int, previousHash [32]byte) {
 	b := NewBlock(nonce, previousHash, bc.transactionPool)
 	bc.chain = append(bc.chain, b)
 	bc.transactionPool = []*Transaction{}
-	return b
 }
 
+// AddTransaction add a transaction to pool.
 func (bc *Blockchain) AddTransaction(sender, receiver string, value float64) {
 	bc.transactionPool = append(bc.transactionPool, NewTransaction(sender, receiver, value))
 }
@@ -80,7 +80,8 @@ func (bc *Blockchain) ValidProof(nonce int, previousHash [32]byte, transactions 
 
 // ProofOfWork finds nonce.
 func (bc *Blockchain) ProofOfWork() int {
-	transactions := bc.CopyTransactionFromPool() // bc.transactionPoolじゃため？
+	// transactions := bc.CopyTransactionFromPool() // bc.transactionPoolじゃため？
+	transactions := bc.transactionPool
 	previousHash := bc.LastBlock().Hash()
 	nonce := 0
 	for !bc.ValidProof(nonce, previousHash, transactions, MINING_DIFFICULTY) {
@@ -93,7 +94,7 @@ func (bc *Blockchain) Mining() {
 	bc.AddTransaction(MINING_SENDER, bc.blockchainAddress, MINING_REWARD)
 	previousHash := bc.LastBlock().Hash()
 	nonce := bc.ProofOfWork()
-	_ = bc.CreateBlock(nonce, previousHash)
+	bc.CreateBlock(nonce, previousHash)
 	log.Println("action=mining, status=success")
 }
 

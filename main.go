@@ -4,17 +4,20 @@ import (
 	"fmt"
 
 	"github.com/yagikota/blockchain_with_go/block"
+	"github.com/yagikota/blockchain_with_go/wallet"
 )
 
 func main() {
-	myBlockchainAddress := "my_blockchain_address"
+	wallet := wallet.NewWallet()
+	fmt.Println(wallet.PrivateKeyStr())
+	fmt.Println(wallet.PublicKeyStr())
+	fmt.Println(wallet.BlockchainAddress())
 
-	blockChain := block.NewBlockchain(myBlockchainAddress)
-	blockChain.Print()
+	blockChain := block.NewBlockchain(wallet.BlockchainAddress())
 
 	blockChain.AddTransaction("A", "B", 1.0)
-	blockChain.Mining()
-	blockChain.Print()
+	blockChain.Mining() // blockが追加される
+	// blockChain.Print()
 
 	blockChain.AddTransaction("C", "D", 2.0)
 	blockChain.AddTransaction("X", "Y", 3.0)
