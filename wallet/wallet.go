@@ -5,9 +5,11 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 
 	"github.com/btcsuite/btcd/btcutil/base58"
+	"github.com/yagikota/blockchain_with_go/utils"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -28,6 +30,8 @@ func NewWallet() *Wallet {
 		privateKey: privateKey,
 		publicKey:  &privateKey.PublicKey,
 	}
+
+	// create blockchainAddress from publicKey
 	// 2.Perform SHA-256 hashing on the public key (32 bytes).
 	h2 := sha256.New()
 	h2.Write(w.publicKey.X.Bytes())
@@ -37,7 +41,6 @@ func NewWallet() *Wallet {
 	h3 := ripemd160.New()
 	h3.Write(digest2)
 	digest3 := h3.Sum(nil) // digest3(20bytes)
-
 	// 4. Add network ID byte in front of RIPEMD-160 hash (0x00 for Main Network).
 	digest4 := make([]byte, len(digest3)+1)
 	digest4[0] = 0x00
@@ -80,4 +83,42 @@ func (w *Wallet) PublicKeyStr() string {
 
 func (w *Wallet) BlockchainAddress() string {
 	return w.blockchainAddress
+}
+
+// 署名用transaction
+// walletで生成したprivateKey, publicKey, BlockchainAddressなどの情報を使用する
+// https://dev.classmethod.jp/articles/blockchain-basic/
+type Transaction struct {
+	senderPrivateKey           *ecdsa.PrivateKey
+	senderPublicKey            *ecdsa.PublicKey
+	senderBlockchainAddress    string
+	recipientBlockchainAddress string
+	value                      float64
+}
+
+func NewTransaction(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey,
+	sender string, recipient string, value float64) *Transaction {
+	return &Transaction{privateKey, publicKey, sender, recipient, value}
+}
+
+func (t *Transaction) GenerateSignature() *utils.Signature {
+	m, _ := json.Marshal(t)
+	h := sha256.Sum256(m)
+	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
+	return &utils.Signature{
+		R: r,
+		S: s,
+	}
+}
+
+func (t *Transaction) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		Sender    string  `json:"sender_blockchain_address"`
+		Recipient string  `json:"recipient_blockchain_address"`
+		Value     float64 `json:"value"`
+	}{
+		Sender:    t.senderBlockchainAddress,
+		Recipient: t.recipientBlockchainAddress,
+		Value:     t.value,
+	})
 }
