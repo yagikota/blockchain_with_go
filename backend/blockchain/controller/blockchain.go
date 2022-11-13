@@ -39,7 +39,7 @@ func getChainHandler(c *fiber.Ctx) error {
 }
 
 func createTransactions(c *fiber.Ctx) error {
-	var t model.TransactionRequest
+	var t model.BlockchainTransactionRequest
 	if err := c.BodyParser(t); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(err)
 	}
@@ -51,5 +51,4 @@ func createTransactions(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.SendStatus(fiber.StatusOK)
-
 }

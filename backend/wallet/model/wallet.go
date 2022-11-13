@@ -9,7 +9,7 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/go-ozzo/ozzo-validation/v4"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/yagikota/blockchain_with_go/backend/common"
 	"golang.org/x/crypto/ripemd160"
 )
@@ -141,5 +141,24 @@ func (t TransactionRequest) Validate() error {
 		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
 		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
 		validation.Field(&t.Value, validation.Required),
+	)
+}
+
+type BlockchainTransactionRequest struct {
+	SenderBlockchainAddress    string  `json:"sender_blockchain_address"`
+	RecipientBlockchainAddress string  `json:"recipient_blockchain_address"`
+	SenderPublicKey            string  `json:"sender_public_key"`
+	Value                      float64 `json:"value"`
+	Signature                  string  `json:"signature"`
+}
+
+// TODO: 長さのvalidate
+func (t BlockchainTransactionRequest) Validate() error {
+	return validation.ValidateStruct(&t,
+		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),
+		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
+		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
+		validation.Field(&t.Value, validation.Required),
+		validation.Field(&t.Signature, validation.Required),
 	)
 }

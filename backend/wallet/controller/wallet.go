@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	block "github.com/yagikota/blockchain_with_go/backend/blockchain/model"
 	"github.com/yagikota/blockchain_with_go/backend/common"
 	"github.com/yagikota/blockchain_with_go/backend/wallet/model"
 	"github.com/yagikota/blockchain_with_go/wallet"
@@ -33,7 +32,7 @@ func createTransaction(c *fiber.Ctx) error {
 	signatureStr := signature.String()
 
 	// blockchain serverに投げる用
-	bt := &block.TransactionRequest{
+	bt := &model.BlockchainTransactionRequest{
 		SenderBlockchainAddress:    t.SenderBlockchainAddress,
 		RecipientBlockchainAddress: t.RecipientBlockchainAddress,
 		SenderPublicKey:            t.SenderPublicKey,

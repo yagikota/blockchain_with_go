@@ -1,0 +1,157 @@
+openapi: 3.0.2
+info:
+  title: Blockchain Simulation
+  description: |-
+    <b>blockchain server API definition</b>
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081/v1/
+  - url: http://localhost:8082/v1/
+  - url: http://localhost:8083/v1/
+tags:
+  - name: blockchain
+    description: API about blockchain
+paths:
+  /transaction:
+    get:
+      tags:
+        - blockchain
+      summary: transaction取得
+      description: |
+        トランザクション取得
+      responses:
+        200:
+          description: リクエスト成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetTransactionResponse"
+        400:
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
+        500:
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerErrorResponse"
+    post:
+      tags:
+        - blockchain
+      summary: transaction追加
+      description: |
+        transaction追加
+      requestBody:
+        description: Request Body
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BlockchainTransactionRequest"
+      responses:
+        200:
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OKResponse"
+        400:
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestErrorResponse"
+        500:
+          description: サーバーエラー
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerErrorResponse"
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    BlockchainTransactionRequest:
+      type: object
+      properties:
+        sender_blockchain_address:
+          type: string
+          example: "16ZqWEsV2dSKBn1AZaZTJNnjjwawwaMbnD"
+          description: 送り手のブロックチェーンアドレス
+        recipient_blockchain_address:
+          type: string
+          example: "16ZqWEsV2dSKBn1AZaZTJNnjjwawwaMbnD"
+          description: 送り先のブロックチェーンアドレス
+        sender_public_key:
+          type: string
+          example: "128119966ae6921e8723c7cf509137c2d8e05df2171adf15e06290e85c4d0b021fac399ca786ce9fb3031bba0fe515f70a3d8de6b0acf2a60d4e3dde640681d4"
+          description: 送り手の公開鍵
+        value:
+          type: number
+          example: 1.5
+          description: コインの取引量
+        signature:
+          type: string
+          example: "signature string"
+          description: 署名
+    BlockchainTransactionResponse:
+      type: object
+      properties:
+        sender_blockchain_address:
+          type: string
+          example: "16ZqWEsV2dSKBn1AZaZTJNnjjwawwaMbnD"
+          description: 送り手のブロックチェーンアドレス
+        recipient_blockchain_address:
+          type: string
+          example: "16ZqWEsV2dSKBn1AZaZTJNnjjwawwaMbnD"
+          description: 送り先のブロックチェーンアドレス
+        value:
+          type: number
+          example: 1.5
+          description: コインの取引量
+    GetTransactionResponse:
+      type: object
+      properties:
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BlockchainTransactionResponse"
+          description: トランザクション
+        length:
+          type: integer
+          example: 10
+          description: トランザクションの長さ
+    OKResponse:
+      title: OKResponse
+      type: object
+      description: 成功時レスポンス
+      properties:
+        message:
+          type: string
+          description: メッセージサンプル
+          example: 成功
+      required:
+        - message
+    BadRequestErrorResponse:
+      title: ErrorResponseBadRequest
+      type: object
+      description: BadRequest時のエラーレスポンス
+      properties:
+        message:
+          type: string
+          description: エラーメッセージサンプル
+          example: リクエストが不正です
+      required:
+        - message
+    InternalServerErrorResponse:
+      title: ErrorResponseInternalServerError
+      type: object
+      description: サーバーエラー時のエラーレスポンス
+      properties:
+        message:
+          type: string
+          description: エラーメッセージサンプル
+          example: サーバーエラーが発生しました
+      required:
+        - message

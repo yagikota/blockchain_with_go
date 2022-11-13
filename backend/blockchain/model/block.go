@@ -201,7 +201,7 @@ func (t *Transaction) Print() {
 	fmt.Printf("value                      %v\n", t.Value)
 }
 
-type TransactionRequest struct {
+type BlockchainTransactionRequest struct {
 	SenderBlockchainAddress    string  `json:"sender_blockchain_address"`
 	RecipientBlockchainAddress string  `json:"recipient_blockchain_address"`
 	SenderPublicKey            string  `json:"sender_public_key"`
@@ -210,7 +210,7 @@ type TransactionRequest struct {
 }
 
 // TODO: 長さのvalidate
-func (t TransactionRequest) Validate() error {
+func (t BlockchainTransactionRequest) Validate() error {
 	return validation.ValidateStruct(&t,
 		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),
 		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
