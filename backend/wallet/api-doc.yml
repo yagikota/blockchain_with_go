@@ -2,50 +2,25 @@ openapi: 3.0.2
 info:
   title: Blockchain Simulation
   description: |-
-    <b>blockchain server API definition</b>
+    <b>wallet server API definition</b>
   version: 1.0.0
 servers:
-  - url: http://localhost:8001/v1/
-  - url: http://localhost:8002/v1/
-  - url: http://localhost:8003/v1/
+  - url: http://localhost:8000/v1/
 tags:
-  - name: blockchain
+  - name: wallet
     description: API about blockchain
 paths:
   /transactions:
-    get:
-      tags:
-        - blockchain
-      summary: transaction取得
-      responses:
-        200:
-          description: リクエスト成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GetTransactionResponse"
-        400:
-          description: リクエストが不正
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BadRequestErrorResponse"
-        500:
-          description: サーバーエラー
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InternalServerErrorResponse"
     post:
       tags:
-        - blockchain
+        - wallet
       summary: transaction追加
       requestBody:
         description: Request Body
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BlockchainTransactionRequest"
+              $ref: "#/components/schemas/TransactionRequest"
       responses:
         200:
           description: A successful response.
@@ -65,41 +40,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerErrorResponse"
-  /mine:
-    get:
+  /wallet:
+    post:
       tags:
-        - blockchain
-      summary: マイニング
-      responses:
-        200:
-          description: A successful response.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/OKResponse"
-        400:
-          description: リクエストが不正
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/BadRequestErrorResponse"
-        500:
-          description: サーバーエラー
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InternalServerErrorResponse"
-  /mine/start:
-    get:
-      tags:
-        - blockchain
-      summary: 自動マイニング
+        - wallet
+      summary: wallet作成
       requestBody:
         description: Request Body
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/BlockchainTransactionRequest"
+              $ref: "#/components/schemas/TransactionRequest"
       responses:
         200:
           description: A successful response.
@@ -119,26 +70,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerErrorResponse"
-
-  /amount?blockchain_addresss={blockchain_addresss}:
+  /wallet/amount:
     get:
       tags:
-        - blockchain
-      summary: 自動マイニング
-      parameters:
-        - in: path
-          name: blockchain_address
-          schema:
-            type: string
-          required: true
-          description: ブロックチェーンアドレス
+        - wallet
+      summary: 仮想通貨合計取得
       responses:
         200:
           description: A successful response.
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/GetAmountResponse"
+                $ref: "#/components/schemas/WalletAmountResponse"
         400:
           description: リクエストが不正
           content:
@@ -154,9 +97,17 @@ paths:
 
 components:
   schemas:
-    BlockchainTransactionRequest:
+    TransactionRequest:
       type: object
       properties:
+        sender_private_key:
+          type: string
+          example: "54ad129d56292c518b32b37a2b4346e62cb06eabe4b552370b4efe2b26402fe0"
+          description: 送り手の秘密鍵
+        sender_public_key:
+          type: string
+          example: "128119966ae6921e8723c7cf509137c2d8e05df2171adf15e06290e85c4d0b021fac399ca786ce9fb3031bba0fe515f70a3d8de6b0acf2a60d4e3dde640681d4"
+          description: 送り手の公開鍵
         sender_blockchain_address:
           type: string
           example: "16ZqWEsV2dSKBn1AZaZTJNnjjwawwaMbnD"
@@ -165,19 +116,11 @@ components:
           type: string
           example: "16ZqWEsV2dSKBn1AZaZTJNnjjwawwaMbnD"
           description: 送り先のブロックチェーンアドレス
-        sender_public_key:
-          type: string
-          example: "128119966ae6921e8723c7cf509137c2d8e05df2171adf15e06290e85c4d0b021fac399ca786ce9fb3031bba0fe515f70a3d8de6b0acf2a60d4e3dde640681d4"
-          description: 送り手の公開鍵
         value:
           type: number
           example: 1.5
           description: コインの取引量
-        signature:
-          type: string
-          example: "signature string"
-          description: 署名
-    BlockchainTransactionResponse:
+    TransactionResponse:
       type: object
       properties:
         sender_blockchain_address:
@@ -198,13 +141,13 @@ components:
         transactions:
           type: array
           items:
-            $ref: "#/components/schemas/BlockchainTransactionResponse"
+            $ref: "#/components/schemas/TransactionResponse"
           description: トランザクション
         length:
           type: integer
           example: 10
           description: トランザクションの長さ
-    GetAmountResponse:
+    WalletAmountResponse:
       type: object
       properties:
         amount:

@@ -11,7 +11,7 @@ func InitRouter() *fiber.App {
 	v1.Get("/health_check", healthCheck)
 	// v1/wallet
 	v1.Post("/wallet", createWallet)
-	v1.Post("/transaction", createTransaction)
+	v1.Post("/transactions", createTransaction)
 
 	return app
 }

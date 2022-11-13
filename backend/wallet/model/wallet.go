@@ -127,19 +127,18 @@ func (t *Transaction) GenerateSignature() *common.Signature {
 // validater: https://zenn.dev/mattn/articles/893f28eff96129
 type TransactionRequest struct {
 	SenderPrivateKey           string  `json:"sender_private_key"`
+	SenderPublicKey            string  `json:"sender_public_key"`
 	SenderBlockchainAddress    string  `json:"sender_blockchain_address"`
 	RecipientBlockchainAddress string  `json:"recipient_blockchain_address"`
-	SenderPublicKey            string  `json:"sender_public_key"`
 	Value                      float64 `json:"value"`
 }
 
-// TODO: 長さのvalidate
 func (t TransactionRequest) Validate() error {
 	return validation.ValidateStruct(&t,
 		validation.Field(&t.SenderPrivateKey, validation.Required, validation.Length(64, 64)), // 32 bytes(256bits): 16進数1桁が2進数4桁→4ビットで表現できる。 16進数で64文字,
+		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
 		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),
 		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
-		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
 		validation.Field(&t.Value, validation.Required),
 	)
 }

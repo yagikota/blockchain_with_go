@@ -10,6 +10,10 @@ import (
 	"github.com/yagikota/blockchain_with_go/backend/wallet/model"
 )
 
+const (
+	gateWayURL = "localhost:8001/v1/transactions"
+)
+
 func createWallet(c *fiber.Ctx) error {
 	myWallet := model.NewWallet()
 	return c.JSON(myWallet)
@@ -40,8 +44,7 @@ func createTransaction(c *fiber.Ctx) error {
 	}
 	btByte, _ := json.Marshal(bt)
 	buf := bytes.NewBuffer(btByte)
-	url := "localhost:8001/transactions"
-	resp, _ := http.Post(url, "application/json", buf)
+	resp, _ := http.Post(gateWayURL, "application/json", buf)
 	if resp.StatusCode == fiber.StatusCreated {
 		return c.SendStatus(fiber.StatusCreated)
 	}
