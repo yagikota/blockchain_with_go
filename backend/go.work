@@ -1,0 +1,7 @@
+go 1.19
+
+use (
+	./blockchain // github.com/yagikota/blockchain_with_go/backend/blockchain
+	./wallet // github.com/yagikota/blockchain_with_go/backend/wallet
+	./common // github.com/yagikota/blockchain_with_go/backend/common
+)

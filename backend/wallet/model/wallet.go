@@ -1,4 +1,4 @@
-package wallet
+package model
 
 import (
 	"crypto/ecdsa"
@@ -9,7 +9,8 @@ import (
 	"fmt"
 
 	"github.com/btcsuite/btcd/btcutil/base58"
-	"github.com/yagikota/blockchain_with_go/utils"
+	"github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/yagikota/blockchain_with_go/backend/common"
 	"golang.org/x/crypto/ripemd160"
 )
 
@@ -78,22 +79,34 @@ func (w *Wallet) PublicKey() *ecdsa.PublicKey {
 }
 
 func (w *Wallet) PublicKeyStr() string {
-	return fmt.Sprintf("%x%x", w.publicKey.X, w.publicKey.Y)
+	return fmt.Sprintf("%064x%064x", w.publicKey.X, w.publicKey.Y)
 }
 
 func (w *Wallet) BlockchainAddress() string {
 	return w.blockchainAddress
 }
 
+func (w *Wallet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		PrivateKey        string `json:"private_key"`
+		PublicKey         string `json:"public_key"`
+		BlockchainAddress string `json:"blockchain_address"`
+	}{
+		PrivateKey:        w.PrivateKeyStr(),
+		PublicKey:         w.PublicKeyStr(),
+		BlockchainAddress: w.blockchainAddress,
+	})
+}
+
 // 署名用transaction
 // walletで生成したprivateKey, publicKey, BlockchainAddressなどの情報を使用する
 // https://dev.classmethod.jp/articles/blockchain-basic/
 type Transaction struct {
-	senderPrivateKey           *ecdsa.PrivateKey
-	senderPublicKey            *ecdsa.PublicKey
-	senderBlockchainAddress    string
-	recipientBlockchainAddress string
-	value                      float64
+	senderPrivateKey           *ecdsa.PrivateKey `json:"-"`
+	senderPublicKey            *ecdsa.PublicKey  `json:"-"`
+	SenderBlockchainAddress    string            `json:"sender_blockchain_address"`
+	RecipientBlockchainAddress string            `json:"recipient_blockchain_address"`
+	Value                      float64           `json:"value"`
 }
 
 func NewTransaction(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey,
@@ -101,24 +114,32 @@ func NewTransaction(privateKey *ecdsa.PrivateKey, publicKey *ecdsa.PublicKey,
 	return &Transaction{privateKey, publicKey, sender, recipient, value}
 }
 
-func (t *Transaction) GenerateSignature() *utils.Signature {
+func (t *Transaction) GenerateSignature() *common.Signature {
 	m, _ := json.Marshal(t)
 	h := sha256.Sum256(m)
 	r, s, _ := ecdsa.Sign(rand.Reader, t.senderPrivateKey, h[:])
-	return &utils.Signature{
+	return &common.Signature{
 		R: r,
 		S: s,
 	}
 }
 
-func (t *Transaction) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Sender    string  `json:"sender_blockchain_address"`
-		Recipient string  `json:"recipient_blockchain_address"`
-		Value     float64 `json:"value"`
-	}{
-		Sender:    t.senderBlockchainAddress,
-		Recipient: t.recipientBlockchainAddress,
-		Value:     t.value,
-	})
+// validater: https://zenn.dev/mattn/articles/893f28eff96129
+type TransactionRequest struct {
+	SenderPrivateKey           string  `json:"sender_private_key"`
+	SenderBlockchainAddress    string  `json:"sender_blockchain_address"`
+	RecipientBlockchainAddress string  `json:"recipient_blockchain_address"`
+	SenderPublicKey            string  `json:"sender_public_key"`
+	Value                      float64 `json:"value"`
+}
+
+// TODO: 長さのvalidate
+func (t TransactionRequest) Validate() error {
+	return validation.ValidateStruct(&t,
+		validation.Field(&t.SenderPrivateKey, validation.Required, validation.Length(64, 64)), // 32 bytes(256bits): 16進数1桁が2進数4桁→4ビットで表現できる。 16進数で64文字,
+		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),
+		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
+		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
+		validation.Field(&t.Value, validation.Required),
+	)
 }
