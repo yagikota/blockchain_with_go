@@ -8,11 +8,10 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/yagikota/blockchain_with_go/backend/common"
 	"github.com/yagikota/blockchain_with_go/backend/wallet/model"
-	"github.com/yagikota/blockchain_with_go/wallet"
 )
 
 func createWallet(c *fiber.Ctx) error {
-	myWallet := wallet.NewWallet()
+	myWallet := model.NewWallet()
 	return c.JSON(myWallet)
 }
 
@@ -27,7 +26,7 @@ func createTransaction(c *fiber.Ctx) error {
 
 	publicKey := common.PublicKeyFromString(t.SenderPublicKey)
 	privateKey := common.PrivateKeyFromString(t.SenderPrivateKey, publicKey)
-	transaction := wallet.NewTransaction(privateKey, publicKey, t.SenderBlockchainAddress, t.RecipientBlockchainAddress, t.Value)
+	transaction := model.NewTransaction(privateKey, publicKey, t.SenderBlockchainAddress, t.RecipientBlockchainAddress, t.Value)
 	signature := transaction.GenerateSignature()
 	signatureStr := signature.String()
 
