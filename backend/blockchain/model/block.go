@@ -216,6 +216,6 @@ func (t BlockchainTransactionRequest) Validate() error {
 		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
 		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
 		validation.Field(&t.Value, validation.Required),
-		validation.Field(&t.Signature, validation.Required),
+		validation.Field(&t.Signature, validation.Required, validation.Length(128, 128)),
 	)
 }

@@ -85,8 +85,8 @@ github.com/valyala/fasthttp v1.40.0 h1:CRq/00MfruPGFLTQKY8b+8SfdK60TxNztjRMnH0t1
 github.com/valyala/fasthttp v1.40.0/go.mod h1:t/G+3rLek+CyY9bnIE+YlMRddxVAAGjhxndDB4i4C0I=
 github.com/valyala/tcplisten v1.0.0 h1:rBHj/Xf+E1tRGZyWIWwJDiRY0zc1Js+CV5DqwacVSA8=
 github.com/valyala/tcplisten v1.0.0/go.mod h1:T0xQ8SeCZGxckz9qRXTfG43PvQ/mcWh7FwZEA7Ioqkc=
-github.com/yagikota/blockchain_with_go v0.0.0-20221112044958-65ad9de42279 h1:9JPgBX+lOC8ZixTLVZQTuzUjTU2rbzxy7Hmsg1kF0W4=
-github.com/yagikota/blockchain_with_go v0.0.0-20221112044958-65ad9de42279/go.mod h1:tAZ/dBAtILSx3mecq2GnhCktMN3vsQ0vgKfr2rkc8Ns=
+github.com/yagikota/blockchain_with_go/backend/common v0.0.0-20221113191929-8dd0b0268a35 h1:kOgZOlyamCpeCpwkAvDcSb2CQuvNL/2x5cuP9SCpjNo=
+github.com/yagikota/blockchain_with_go/backend/common v0.0.0-20221113191929-8dd0b0268a35/go.mod h1:tvWKRDG2z0xYbtLKpdQRavXrsMwRRPgNbVak7mAODYU=
 golang.org/x/crypto v0.0.0-20170930174604-9419663f5a44/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9/go.mod h1:LzIPMQfyMNhhGPhUkYOs5KpL4U8rLKemX1yGLhDgUto=

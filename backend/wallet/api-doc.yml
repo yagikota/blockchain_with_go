@@ -45,12 +45,6 @@ paths:
       tags:
         - wallet
       summary: wallet作成
-      requestBody:
-        description: Request Body
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/TransactionRequest"
       responses:
         200:
           description: A successful response.

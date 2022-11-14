@@ -1,3 +1,4 @@
+github.com/btcsuite/btcd v0.23.0 h1:V2/ZgjfDFIygAX3ZapeigkVBoVUtOJKSwrhZdlpSvaA=
 github.com/btcsuite/btcd v0.23.2 h1:/YOgUp25sdCnP5ho6Hl3s0E438zlX+Kak7E6TgBgoT0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 golang.org/x/net v0.1.0 h1:hZ/3BUoy5aId7sCpA/Tc5lt8DkFgdVS2onTpJsZ/fl0=

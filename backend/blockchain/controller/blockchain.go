@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/yagikota/blockchain_with_go/backend/blockchain/model"
 	"github.com/yagikota/blockchain_with_go/backend/common"
-	"github.com/yagikota/blockchain_with_go/wallet"
 )
 
 type key string
@@ -22,7 +21,7 @@ var cache map[key]*model.Blockchain = make(map[key]*model.Blockchain)
 func getBlockchain(c *fiber.Ctx) *model.Blockchain {
 	bc, ok := cache[cacheKey]
 	if !ok {
-		minersWallet := wallet.NewWallet()
+		minersWallet := model.NewWallet()
 		port, _ := strconv.Atoi(c.Port())
 		bc = model.NewBlockchain(minersWallet.BlockchainAddress(), port)
 		cache[cacheKey] = bc
@@ -40,7 +39,7 @@ func getChainHandler(c *fiber.Ctx) error {
 
 func createTransactions(c *fiber.Ctx) error {
 	var t model.BlockchainTransactionRequest
-	if err := c.BodyParser(t); err != nil {
+	if err := c.BodyParser(&t); err != nil {
 		return c.Status(http.StatusBadRequest).JSON(err)
 	}
 	publicKey := common.PublicKeyFromString(t.SenderPublicKey)
@@ -50,5 +49,5 @@ func createTransactions(c *fiber.Ctx) error {
 	if !isCreated {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
-	return c.SendStatus(fiber.StatusOK)
+	return c.SendStatus(fiber.StatusCreated)
 }
