@@ -1,4 +1,4 @@
-// Package which organize all of shared code
+// Package which organize all of shared code.
 // https://passage.id/post/shared-go-packages-in-a-monorepo
 
 package common
@@ -40,12 +40,19 @@ func SignatureFromString(s string) *Signature {
 
 func PublicKeyFromString(s string) *ecdsa.PublicKey {
 	x, y := String2BigIntTuple(s)
-	return &ecdsa.PublicKey{elliptic.P256(), &x, &y}
+	return &ecdsa.PublicKey{
+		Curve: elliptic.P256(),
+		X:     &x,
+		Y:     &y,
+	}
 }
 
 func PrivateKeyFromString(s string, publicKey *ecdsa.PublicKey) *ecdsa.PrivateKey {
 	b, _ := hex.DecodeString(s[:])
 	var bi big.Int
 	_ = bi.SetBytes(b)
-	return &ecdsa.PrivateKey{*publicKey, &bi}
+	return &ecdsa.PrivateKey{
+		PublicKey: *publicKey,
+		D:         &bi,
+	}
 }
