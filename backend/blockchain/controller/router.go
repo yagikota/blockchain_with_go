@@ -1,13 +1,7 @@
 package controller
 
 import (
-	"fmt"
-
 	"github.com/gofiber/fiber/v2"
-)
-
-const (
-	blockchainAddressParam = "blockchain_address"
 )
 
 func InitRouter() *fiber.App {
@@ -19,7 +13,7 @@ func InitRouter() *fiber.App {
 	v1.Post("/transactions", createTransactions)
 	v1.Get("/mine", mine)
 	v1.Get("/mine/start", startMine)
-	v1.Get(fmt.Sprintf("/amount/:%s?", blockchainAddressParam), amount)
+	v1.Get("/amount", amount)
 
 	return app
 }
