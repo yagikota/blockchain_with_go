@@ -52,10 +52,10 @@ func (b *Block) Hash() string {
 }
 
 type Blockchain struct {
-	TransactionPool   []*Transaction `json:"-"`
+	transactionPool   []*Transaction `json:"-"`
 	Chain             []*Block       `json:"chains"`
 	BlockchainAddress string         `json:"-"` // Use bitcoin address as blockchainAddress.
-	Port              int            `json:"-"`
+	port              int            `json:"-"`
 }
 
 func NewBlockchain(blockchainAddress string, port int) *Blockchain {
@@ -63,8 +63,12 @@ func NewBlockchain(blockchainAddress string, port int) *Blockchain {
 	bc := new(Blockchain)
 	bc.CreateBlock(0, b.Hash())
 	bc.BlockchainAddress = blockchainAddress
-	bc.Port = port
+	bc.port = port
 	return bc
+}
+
+func (bc *Blockchain) TransactionPool() []*Transaction {
+	return bc.transactionPool
 }
 
 func (bc *Blockchain) Print() {
@@ -77,9 +81,9 @@ func (bc *Blockchain) Print() {
 
 // TODO: function name maybe incorrect.
 func (bc *Blockchain) CreateBlock(nonce int, previousHash string) {
-	b := NewBlock(nonce, previousHash, bc.TransactionPool)
+	b := NewBlock(nonce, previousHash, bc.transactionPool)
 	bc.Chain = append(bc.Chain, b)
-	bc.TransactionPool = []*Transaction{}
+	bc.transactionPool = []*Transaction{}
 }
 
 func (bc *Blockchain) CreateTransaction(sender, recipient string, value float64, senderPublicKey *ecdsa.PublicKey, s *common.Signature) bool {
@@ -93,7 +97,7 @@ func (bc *Blockchain) AddTransaction(sender, recipient string, value float64, se
 	t := NewTransaction(sender, recipient, value)
 	// マイニングの場合、送り手はBCになる。
 	if sender == MINING_SENDER {
-		bc.TransactionPool = append(bc.TransactionPool, t)
+		bc.transactionPool = append(bc.transactionPool, t)
 		return true
 	}
 
@@ -102,7 +106,7 @@ func (bc *Blockchain) AddTransaction(sender, recipient string, value float64, se
 		// 	log.Println("ERROR: Not enough balance in a wallet")
 		// 	return false
 		// }
-		bc.TransactionPool = append(bc.TransactionPool, t)
+		bc.transactionPool = append(bc.transactionPool, t)
 		return true
 	}
 	log.Println("ERROR: Verify Transaction")
@@ -116,8 +120,8 @@ func (bc *Blockchain) VerifyTransactionSignature(senderPublicKey *ecdsa.PublicKe
 }
 
 func (bc *Blockchain) CopyTransactionFromPool() []*Transaction {
-	transaction := make([]*Transaction, 0, len(bc.TransactionPool))
-	for _, t := range bc.TransactionPool {
+	transaction := make([]*Transaction, 0, len(bc.transactionPool))
+	for _, t := range bc.transactionPool {
 		transaction = append(transaction, NewTransaction(
 			t.SenderBlockchainAddress,
 			t.RecipientBlockchainAddress,
@@ -132,6 +136,7 @@ func (bc *Blockchain) LastBlock() *Block {
 }
 
 // マイニング競争に勝った者がブロックを生成するコンセンサスアルゴリズムの1種
+// TODO: 時間かかる
 func (bc *Blockchain) ValidProof(nonce int, previousHash string, transactions []*Transaction, difficulty int) bool {
 	zeros := strings.Repeat("0", difficulty)
 	guessBlock := Block{
@@ -147,7 +152,7 @@ func (bc *Blockchain) ValidProof(nonce int, previousHash string, transactions []
 // ProofOfWork finds nonce.
 func (bc *Blockchain) ProofOfWork() int {
 	// transactions := bc.CopyTransactionFromPool() // bc.transactionPoolじゃため？
-	transactions := bc.TransactionPool
+	transactions := bc.transactionPool
 	previousHash := bc.LastBlock().Hash()
 	nonce := 0
 	for !bc.ValidProof(nonce, previousHash, transactions, MINING_DIFFICULTY) {
@@ -156,12 +161,13 @@ func (bc *Blockchain) ProofOfWork() int {
 	return nonce
 }
 
-func (bc *Blockchain) Mining() {
+func (bc *Blockchain) Mining() bool {
 	bc.AddTransaction(MINING_SENDER, bc.BlockchainAddress, MINING_REWARD, nil, nil)
 	previousHash := bc.LastBlock().Hash()
 	nonce := bc.ProofOfWork()
 	bc.CreateBlock(nonce, previousHash)
 	log.Println("action=mining, status=success")
+	return true
 }
 
 func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float64 {
@@ -218,4 +224,9 @@ func (t BlockchainTransactionRequest) Validate() error {
 		validation.Field(&t.Value, validation.Required),
 		validation.Field(&t.Signature, validation.Required, validation.Length(128, 128)),
 	)
+}
+
+type BlockchainTransactionResponse struct {
+	Transactions []*Transaction `json:"transactions"`
+	Length       int            `json:"length"`
 }

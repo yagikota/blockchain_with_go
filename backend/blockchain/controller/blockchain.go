@@ -37,6 +37,15 @@ func getChainHandler(c *fiber.Ctx) error {
 	return c.JSON(bc)
 }
 
+func getTransactions(c *fiber.Ctx) error {
+	bc := getBlockchain(c)
+	transactions := bc.TransactionPool()
+	return c.JSON(model.BlockchainTransactionResponse{
+		Transactions: transactions,
+		Length:       len(transactions),
+	})
+}
+
 func createTransactions(c *fiber.Ctx) error {
 	var t model.BlockchainTransactionRequest
 	if err := c.BodyParser(&t); err != nil {
@@ -50,4 +59,13 @@ func createTransactions(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.SendStatus(fiber.StatusCreated)
+}
+
+func mine(c *fiber.Ctx) error {
+	bc := getBlockchain(c)
+	isMined := bc.Mining()
+	if !isMined {
+		return c.Status(fiber.StatusInternalServerError).JSON(common.NewErrorResponse("couldn't mine"))
+	}
+	return c.Status(fiber.StatusOK).JSON(common.NewErrorResponse("mining success"))
 }
