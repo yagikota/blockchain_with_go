@@ -3,6 +3,7 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
@@ -54,4 +55,20 @@ func createTransaction(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusCreated)
 	}
 	return c.SendStatus(fiber.StatusInternalServerError)
+}
+
+func getAmount(c *fiber.Ctx) error {
+	bcAddress := c.Query("blockchain_address")
+	whereAddress := fmt.Sprintf("?blockchain_address=%s", bcAddress)
+	bcResp, err := http.Get(gateWayURL + fmt.Sprintf("/amount%s", whereAddress))
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(err)
+	}
+
+	decorder := json.NewDecoder(bcResp.Body)
+	var resp model.AmountResponse
+	if err := decorder.Decode(&resp); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(common.NewResponse(err.Error()))
+	}
+	return c.JSON(resp)
 }

@@ -75,3 +75,12 @@ func startMine(c *fiber.Ctx) error {
 	bc.StartMining()
 	return c.Status(fiber.StatusInternalServerError).JSON(common.NewResponse("auto mining start"))
 }
+
+func amount(c *fiber.Ctx) error {
+	bc := getBlockchain(c)
+	bcAddress := c.Query("blockchain_address")
+	amount := bc.CalculateTotalAmount(bcAddress)
+	return c.JSON(model.AmountResponse{
+		Amount: amount,
+	})
+}

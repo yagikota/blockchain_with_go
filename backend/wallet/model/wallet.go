@@ -160,3 +160,7 @@ func (t BlockchainTransactionRequest) Validate() error {
 		validation.Field(&t.Signature, validation.Required),
 	)
 }
+
+type AmountResponse struct {
+	Amount float64 `json:"amount"`
+}

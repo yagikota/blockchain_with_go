@@ -247,3 +247,7 @@ type BlockchainTransactionResponse struct {
 	Transactions []*Transaction `json:"transactions"`
 	Length       int            `json:"length"`
 }
+
+type AmountResponse struct {
+	Amount float64 `json:"amount"`
+}
