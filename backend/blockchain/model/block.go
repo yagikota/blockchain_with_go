@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"sync"
 	"time"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -17,6 +18,7 @@ const (
 	MINING_DIFFICULTY = 3 // difficulty of mining.
 	MINING_SENDER     = "THE BLOCKCHAIN"
 	MINING_REWARD     = 1.0
+	MINING_TIME_SEC   = 20
 )
 
 type Block struct {
@@ -27,9 +29,9 @@ type Block struct {
 }
 
 func (b *Block) Print() {
-	fmt.Printf("timestamp       %d\n", b.Timestamp)
-	fmt.Printf("nonce           %d\n", b.Nonce)
-	fmt.Printf("previous_hash   %x\n", b.PreviousHash)
+	fmt.Printf("timestamp     %d\n", b.Timestamp)
+	fmt.Printf("nonce         %d\n", b.Nonce)
+	fmt.Printf("previous_hash %x\n", b.PreviousHash)
 	for _, t := range b.Transactions {
 		t.Print()
 	}
@@ -52,10 +54,11 @@ func (b *Block) Hash() string {
 }
 
 type Blockchain struct {
-	transactionPool   []*Transaction `json:"-"`
-	Chain             []*Block       `json:"chains"`
-	BlockchainAddress string         `json:"-"` // Use bitcoin address as blockchainAddress.
-	port              int            `json:"-"`
+	transactionPool   []*Transaction
+	Chain             []*Block `json:"chains"`
+	BlockchainAddress string   // Use bitcoin address as blockchainAddress.
+	port              int
+	mux               sync.Mutex
 }
 
 func NewBlockchain(blockchainAddress string, port int) *Blockchain {
@@ -162,12 +165,27 @@ func (bc *Blockchain) ProofOfWork() int {
 }
 
 func (bc *Blockchain) Mining() bool {
+	bc.mux.Lock()
+	defer bc.mux.Unlock()
+
+	// 空の場合はminingしない
+	if len(bc.transactionPool) == 0 {
+		return false
+	}
+
+	// 送り手がBlockchainになる
 	bc.AddTransaction(MINING_SENDER, bc.BlockchainAddress, MINING_REWARD, nil, nil)
 	previousHash := bc.LastBlock().Hash()
 	nonce := bc.ProofOfWork()
 	bc.CreateBlock(nonce, previousHash)
 	log.Println("action=mining, status=success")
 	return true
+}
+
+func (bc *Blockchain) StartMining() {
+	bc.Mining()
+	// TODO: search wether available or not to use func which have returned value to time.AfterFunc argument.
+	_ = time.AfterFunc(time.Second*MINING_TIME_SEC, bc.StartMining)
 }
 
 func (bc *Blockchain) CalculateTotalAmount(blockchainAddress string) float64 {
@@ -215,7 +233,6 @@ type BlockchainTransactionRequest struct {
 	Signature                  string  `json:"signature"`
 }
 
-// TODO: 長さのvalidate
 func (t BlockchainTransactionRequest) Validate() error {
 	return validation.ValidateStruct(&t,
 		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),

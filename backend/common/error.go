@@ -1,11 +1,11 @@
 package common
 
-type ErrorResponse struct {
+type Response struct {
 	Message string `json:"message"`
 }
 
-func NewErrorResponse(message string) *ErrorResponse {
-	return &ErrorResponse{
+func NewResponse(message string) *Response {
+	return &Response{
 		Message: message,
 	}
 }

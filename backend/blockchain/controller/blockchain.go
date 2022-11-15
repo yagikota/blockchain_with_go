@@ -65,7 +65,13 @@ func mine(c *fiber.Ctx) error {
 	bc := getBlockchain(c)
 	isMined := bc.Mining()
 	if !isMined {
-		return c.Status(fiber.StatusInternalServerError).JSON(common.NewErrorResponse("couldn't mine"))
+		return c.Status(fiber.StatusInternalServerError).JSON(common.NewResponse("couldn't mine"))
 	}
-	return c.Status(fiber.StatusOK).JSON(common.NewErrorResponse("mining success"))
+	return c.Status(fiber.StatusOK).JSON(common.NewResponse("a mining success"))
+}
+
+func startMine(c *fiber.Ctx) error {
+	bc := getBlockchain(c)
+	bc.StartMining()
+	return c.Status(fiber.StatusInternalServerError).JSON(common.NewResponse("auto mining start"))
 }

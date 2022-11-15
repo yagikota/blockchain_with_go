@@ -139,7 +139,7 @@ func (t TransactionRequest) Validate() error {
 		validation.Field(&t.SenderPublicKey, validation.Required, validation.Length(128, 128)),
 		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),
 		validation.Field(&t.RecipientBlockchainAddress, validation.Required, validation.Length(26, 35)),
-		validation.Field(&t.Value, validation.Required),
+		validation.Field(&t.Value, validation.Required, validation.Min(1.0)), // TODO: validation効いてない
 	)
 }
 
@@ -151,7 +151,6 @@ type BlockchainTransactionRequest struct {
 	Signature                  string  `json:"signature"`
 }
 
-// TODO: 長さのvalidate
 func (t BlockchainTransactionRequest) Validate() error {
 	return validation.ValidateStruct(&t,
 		validation.Field(&t.SenderBlockchainAddress, validation.Required, validation.Length(26, 35)),
