@@ -17,6 +17,7 @@ func IsFoundHost(host string, port int) bool {
 		fmt.Printf("%s %v\n", target, err)
 		return false
 	}
+	fmt.Printf("%s found\n", target)
 	return true
 }
 
@@ -26,6 +27,8 @@ func IsFoundHost(host string, port int) bool {
 // 250～255 25[0-5]
 var PATTERN = regexp.MustCompile(`((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?\.){3})(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)`)
 
+// IPアドレスの下１桁を走査(startIP~endIP)
+// さらにポートも走査(startPort~endPort)
 func FindNeighbors(myHost string, myPort int, startIp int, endIp int, startPort int, endPort int) []string {
 	address := net.JoinHostPort(myHost, strconv.Itoa(myPort))
 
@@ -44,8 +47,8 @@ func FindNeighbors(myHost string, myPort int, startIp int, endIp int, startPort 
 	lastIp, _ := strconv.Atoi(m[len(m)-1])
 	neighbors := make([]string, 0, (endPort-startPort+1)*(endIp-startIp+1))
 
-	for port := startPort; port <= endPort; port += 1 {
-		for ip := startIp; ip <= endIp; ip += 1 {
+	for ip := startIp; ip <= endIp; ip += 1 {
+		for port := startPort; port <= endPort; port += 1 {
 			guessHost := fmt.Sprintf("%s%d", prefixHost, lastIp+int(ip))
 			guessTarget := fmt.Sprintf("%s:%d", guessHost, port)
 			if guessTarget != address && IsFoundHost(guessHost, port) {
