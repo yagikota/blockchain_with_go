@@ -1,7 +1,11 @@
 package main
 
 import (
+	"flag"
+	"fmt"
 	"log"
+	"net"
+	"strconv"
 
 	"github.com/yagikota/blockchain_with_go/backend/blockchain/controller"
 )
@@ -9,8 +13,8 @@ import (
 // https://docs.gofiber.io/api/app#group
 func main() {
 	app1 := controller.InitRouter()
-	// go func() {
-	// 	log.Fatal(app1.Listen(":8002"))
-	// }()
-	log.Fatal(app1.Listen(":8001"))
+	port := flag.Int("port", 8001, "TCP Port Number of Blockchain Server")
+	flag.Parse()
+	fmt.Println(*port)
+	log.Fatal(app1.Listen(net.JoinHostPort("localhost", strconv.Itoa(*port))))
 }
